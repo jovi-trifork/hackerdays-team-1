@@ -13,6 +13,7 @@ pub async fn get_messages(
 ) -> impl IntoResponse {
     let message_map = app_state.messages.read().unwrap();
     let ch_messages = message_map.get(&id);
+
     if ch_messages.is_some() {
         Json(ch_messages.unwrap().clone())
     } else {

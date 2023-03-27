@@ -2,10 +2,12 @@ mod model;
 mod messages;
 mod users;
 mod channels;
+mod systems;
 use axum::{
     routing::{get, Router},
 };
 use messages::{get_messages, create_message};
+use systems::{get_systems, create_system};
 use model::*;
 use users::get_users;
 use channels::get_channels;
@@ -29,6 +31,10 @@ async fn main() {
         .route(
             "/api/v1/channels",
             get(get_channels),
+        )
+        .route(
+            "/api/v1/systems",
+            get(get_systems).post(create_system),
         )
         .with_state(state);
     //        Router::new().route("/", get(|| async { "Hello, world!" }));

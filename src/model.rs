@@ -9,13 +9,14 @@ use std::{
 type ChannelMessages = Arc<RwLock<HashMap<String, Vec<Message>>>>;
 type Channels = Arc<RwLock<HashMap<String, Vec<Channel>>>>;
 type Users = Arc<RwLock<HashMap<String, Vec<User>>>>;
-
+type Systems = Arc<RwLock<HashMap<String, Vec<System>>>>;
 
 #[derive(Clone, Default)]
 pub struct AppState {
     pub messages: ChannelMessages,
     pub channels: Channels,
-    pub users: Users
+    pub users: Users,
+    pub systems: Systems,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
