@@ -35,7 +35,6 @@ pub struct User {
     avatar: String,
 }
 
-
 #[derive(Serialize, Deserialize)]
 pub struct System {
     id: Uuid,

@@ -16,10 +16,14 @@ use std::{
 use uuid::Uuid;
 
 type ChannelMessages = Arc<RwLock<HashMap<String, Vec<Message>>>>;
+type Channels = Arc<RwLock<HashMap<String, Vec<Channel>>>>;
+type Users = Arc<RwLock<HashMap<String, Vec<User>>>>;
 
 #[derive(Clone, Default)]
 struct AppState {
     messages: ChannelMessages,
+    channels: Channels,
+    users: Users
 }
 
 #[tokio::main]
