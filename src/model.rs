@@ -89,11 +89,21 @@ pub struct User {
     id: String,
     name: String,
     status: String,
-    from_system: Uuid,
+    from_system: String,
     avatar: String,
 }
 
 impl User {
+    pub fn new (id: String) -> User {
+        User {
+            id,
+            name: "".to_string(),
+            status: "".to_string(),
+            from_system: "own system".to_string(),
+            avatar: "".to_string()
+        }
+    }
+
     pub fn get_id(&self) -> String {
         self.id.clone()
     }

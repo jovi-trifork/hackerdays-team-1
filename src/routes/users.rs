@@ -82,7 +82,7 @@ pub async fn add_blocked_user(
 
         return internal_user.clone();
     } else {
-        panic!("Could not find user");
+        update_internal_user(app_state, User::new(user_id)).await
     }
 }
 
@@ -98,7 +98,7 @@ pub async fn add_owned_channel(
             return internal_user.clone();
         },
         None => {
-            panic!("Could not find user");
+            update_internal_user(app_state, User::new(user_id)).await
         }
     }
 }
