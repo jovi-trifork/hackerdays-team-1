@@ -7,25 +7,20 @@ use std::{
 };
 
 type ChannelMessages = Arc<RwLock<HashMap<String, Vec<Message>>>>;
-type Channels = Arc<RwLock<HashMap<String, Vec<Channel>>>>;
-type Users = Arc<RwLock<HashMap<String, Vec<User>>>>;
-<<<<<<< HEAD
+type UserChannels = Arc<RwLock<HashMap<String, Vec<Channel>>>>;
+type Channels = Arc<RwLock<HashMap<String, Channel>>>;
+type Users = Arc<RwLock<HashMap<String, User>>>;
 type ChannelUsers = Arc<RwLock<HashMap<String, Vec<String>>>>;
-
-=======
 type Systems = Arc<RwLock<HashMap<String, Vec<System>>>>;
->>>>>>> a835078c7b775aa008182bed217dcea2d8926da0
 
 #[derive(Clone, Default)]
 pub struct AppState {
     pub messages: ChannelMessages,
     pub channels: Channels,
     pub users: Users,
-<<<<<<< HEAD
+    pub user_channels: UserChannels,
     pub channel_users: ChannelUsers,
-=======
     pub systems: Systems,
->>>>>>> a835078c7b775aa008182bed217dcea2d8926da0
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -36,12 +31,18 @@ pub struct Payload {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Channel {
-    id: Uuid,
+    id: String,
     name: String,
     icon: String,
     description: String,
     visibiliy: bool,
     size: i32,
+}
+
+impl Channel {
+    pub fn get_id(&self) -> String {
+        self.id.clone()
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone)]
