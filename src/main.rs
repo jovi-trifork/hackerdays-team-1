@@ -1,16 +1,19 @@
-mod todos;
 mod dto;
-
+mod todos;
 
 use axum::{
     extract::{Path, State},
     response::IntoResponse,
     routing::{get, Router},
-    Json, 
+    Json,
 };
-use serde::{Deserialize, Serialize};
-use std::{net::SocketAddr, sync::{Arc, RwLock}, collections::HashMap};
 use dto::*;
+use serde::{Deserialize, Serialize};
+use std::{
+    collections::HashMap,
+    net::SocketAddr,
+    sync::{Arc, RwLock},
+};
 use uuid::Uuid;
 
 #[tokio::main]
@@ -20,9 +23,8 @@ async fn main() {
     let app = Router::new()
         .route(
             "/api/v1/channels/:channel_id/messages",
-            get(channel_messages),
+            get(channel_messages).post(create_message),
         )
-        .post(create_message)
         .with_state(message_db);
     //        Router::new().route("/", get(|| async { "Hello, world!" }));
 
@@ -40,7 +42,12 @@ async fn channel_messages(
     Path(id): Path<Uuid>,
     State(messages): State<ChannelMessages>,
 ) -> impl IntoResponse {
-    let messages = messages.read().unwrap().get(&id).cloned().unwrap_or_default();
+    let messages = messages
+        .read()
+        .unwrap()
+        .get(&id)
+        .cloned()
+        .unwrap_or_default();
     Json(messages)
 }
 
