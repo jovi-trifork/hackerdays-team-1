@@ -1,8 +1,6 @@
-use axum::{extract::State, response::IntoResponse, http::StatusCode, Json};
+use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 
 use crate::model::{AppState, Channel};
-
-
 
 pub async fn get_channels(State(app_state): State<AppState>) -> impl IntoResponse {
     let channel_map = app_state.channels.read().unwrap();

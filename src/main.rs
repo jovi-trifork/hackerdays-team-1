@@ -7,7 +7,7 @@ use axum::{
 };
 use messages::{get_messages, create_message};
 use model::*;
-use users::get_users;
+use users::{get_users, get_channel_users};
 use channels::get_channels;
 use std::{
     net::SocketAddr,
@@ -30,6 +30,8 @@ async fn main() {
             "/api/v1/channels",
             get(get_channels),
         )
+        .route("/api/v1/channels/:channel_id/users", 
+                get(get_channel_users))
         .with_state(state);
     //        Router::new().route("/", get(|| async { "Hello, world!" }));
 
