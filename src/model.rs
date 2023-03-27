@@ -33,12 +33,12 @@ pub struct Payload {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Channel {
-    id: String,
-    name: String,
-    icon: String,
-    description: String,
-    visibiliy: bool,
-    size: i32,
+    pub id: String,
+    pub name: Option<String>,
+    pub icon: Option<String>,
+    pub description: Option<String>,
+    pub visibility: bool,
+    pub size: i32,
 }
 
 impl Channel {
