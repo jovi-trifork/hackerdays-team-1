@@ -28,6 +28,10 @@ async fn main() {
             "/api/v1/channels",
             get(get_channels).post(create_channel),
         )
+        .route(
+            "/api/v1/channels/{channel_id}/users", 
+            get(get_channel_users),
+        )   
         .with_state(state);
 
     // Address that server will bind to.
