@@ -92,14 +92,13 @@ pub async fn add_owned_channel(
     channel_id: String
 ) -> InternalUser {
     let mut users_map = app_state.internalUsers.write().unwrap();
-    let user_opt = users_map.get_mut(&user_id);
-
-    if user_opt.is_some() {
-        let internal_user = user_opt.unwrap();
-        internal_user.add_owned_channel(channel_id.clone());
-
-        return internal_user.clone();
-    } else {
-        panic!("Could not find user");
+    match users_map.get_mut(&user_id) {
+        Some(internal_user) => {
+            internal_user.add_owned_channel(channel_id.clone());
+            return internal_user.clone();
+        },
+        None => {
+            panic!("Could not find user");
+        }
     }
 }
