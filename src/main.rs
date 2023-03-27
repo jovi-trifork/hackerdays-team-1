@@ -1,15 +1,14 @@
-mod channels;
-mod messages;
+
 mod model;
-mod systems;
-mod users;
+mod routes;
+
 use axum::routing::{get, Router};
-use channels::{get_channels, create_channel};
-use messages::{create_message, get_messages};
 use model::*;
 use std::net::SocketAddr;
-use systems::{get_systems, create_system};
-use users::{get_channel_users, get_users};
+use routes::channels::{get_channels, create_channel};
+use routes::messages::{create_message, get_messages};
+use routes::systems::{get_systems, create_system};
+use routes::users::{get_channel_users, get_users};
 
 #[tokio::main]
 async fn main() {
