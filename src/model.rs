@@ -1,21 +1,27 @@
 use serde::{Serialize, Deserialize};
-use uuid::Uuid;
 use chrono::{DateTime, Utc};
 use std::{
     collections::HashMap,
     sync::{Arc, RwLock},
 };
 
-type ChannelMessages = Arc<RwLock<HashMap<String, Vec<Message>>>>;
-type Channels = Arc<RwLock<HashMap<String, Vec<Channel>>>>;
-type Users = Arc<RwLock<HashMap<String, Vec<User>>>>;
+type Uuid = String;
+type ChannelId = String;
+type UserId = String;
+type ChannelMessages = Arc<RwLock<HashMap<ChannelId, Vec<Message>>>>;
+type Channels = Arc<RwLock<HashMap<ChannelId, Channel>>>;
+type Users = Arc<RwLock<HashMap<UserId, User>>>;
 type Systems = Arc<RwLock<HashMap<String, System>>>;
+type ChannelUsers = Arc<RwLock<HashMap<ChannelId, Vec<UserId>>>>;
+type UserChannels = Arc<RwLock<HashMap<String, Vec<Channel>>>>;
 
 #[derive(Clone, Default)]
 pub struct AppState {
     pub messages: ChannelMessages,
     pub channels: Channels,
     pub users: Users,
+    pub user_channels: UserChannels,
+    pub channel_users: ChannelUsers,
     pub systems: Systems,
 }
 
@@ -27,12 +33,18 @@ pub struct Payload {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Channel {
-    id: Uuid,
+    id: String,
     name: String,
     icon: String,
     description: String,
     visibiliy: bool,
     size: i32,
+}
+
+impl Channel {
+    pub fn get_id(&self) -> String {
+        self.id.clone()
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -63,7 +75,7 @@ pub struct System {
 impl System {
     pub fn new(address: String) -> Self {
         System {
-            id: Uuid::new_v4(),
+            id: uuid::Uuid::new_v4().to_string(),
             address,
             last_sync: chrono::Utc::now(),
             status: "".to_string(),

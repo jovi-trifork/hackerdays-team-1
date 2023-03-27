@@ -8,12 +8,11 @@ use axum::{
 use crate::model::{AppState, Message};
 
 pub async fn get_messages(
-    Path(id): Path<String>,
+    Path(channel_id): Path<String>,
     State(app_state): State<AppState>,
 ) -> impl IntoResponse {
     let message_map = app_state.messages.read().unwrap();
-    let ch_messages = message_map.get(&id);
-
+    let ch_messages = message_map.get(&channel_id);
     if ch_messages.is_some() {
         Json(ch_messages.unwrap().clone())
     } else {

@@ -1,20 +1,15 @@
-mod model;
-mod messages;
-mod users;
 mod channels;
+mod messages;
+mod model;
 mod systems;
-
-use axum::{
-    routing::{get, Router},
-};
-use messages::{get_messages, create_message};
-use systems::{get_systems, create_system};
+mod users;
+use axum::routing::{get, Router};
+use channels::{get_channels, create_channel};
+use messages::{create_message, get_messages};
 use model::*;
-use users::get_users;
-use channels::get_channels;
-use std::{
-    net::SocketAddr,
-};
+use std::net::SocketAddr;
+use systems::{create_system, get_systems};
+use users::{get_channel_users, get_users};
 
 #[tokio::main]
 async fn main() {
@@ -32,14 +27,13 @@ async fn main() {
         )
         .route(
             "/api/v1/channels",
-            get(get_channels),
+            get(get_channels).post(create_channel),
         )
         .route(
-            "/api/v1/systems",
-            get(get_systems).post(create_system),
-        )
+            "/api/v1/channels/{channel_id}/users", 
+            get(get_channel_users),
+        )   
         .with_state(state);
-    //        Router::new().route("/", get(|| async { "Hello, world!" }));
 
     // Address that server will bind to.
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
