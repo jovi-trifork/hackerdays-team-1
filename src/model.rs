@@ -12,6 +12,7 @@ type UserId = String;
 type ChannelMessages = Arc<RwLock<HashMap<ChannelId, Vec<Message>>>>;
 type Channels = Arc<RwLock<HashMap<ChannelId, Channel>>>;
 type Users = Arc<RwLock<HashMap<UserId, User>>>;
+type InternalUsers = Arc<RwLock<HashMap<UserId, InternalUser>>>;
 type Systems = Arc<RwLock<HashMap<Uuid, System>>>;
 type ChannelUsers = Arc<RwLock<HashMap<ChannelId, Vec<UserId>>>>;
 type UserChannels = Arc<RwLock<HashMap<String, Vec<Channel>>>>;
@@ -20,7 +21,7 @@ type UserChannels = Arc<RwLock<HashMap<String, Vec<Channel>>>>;
 pub struct AppState {
     pub messages: ChannelMessages,
     pub channels: Channels,
-    pub users: Users,
+    pub internalUsers: InternalUsers,
     pub user_channels: UserChannels,
     pub channel_users: ChannelUsers,
     pub systems: Systems,
@@ -90,11 +91,44 @@ pub struct User {
     status: String,
     from_system: Uuid,
     avatar: String,
+}
+
+impl User {
+    pub fn get_id(&self) -> String {
+        self.id.clone()
+    }
+}
+
+#[derive(Clone)]
+pub struct InternalUser {
+    id: String,
+    model: User,
     owned_channels: HashSet<String>,
     blocked_users: HashSet<String>
 }
 
-impl User {
+impl InternalUser {
+    pub fn new(id: String, model: User, owned_channels: HashSet<String>, blocked_users: HashSet<String>) -> InternalUser {
+        InternalUser {
+            id,
+            model,
+            owned_channels,
+            blocked_users
+        }
+    }
+
+    pub fn get_id(&self) -> String {
+        self.id.clone()
+    }
+
+    pub fn get_model(&self) -> User {
+        self.model.clone()
+    }
+
+    pub fn set_model(&mut self, model: User) {
+        self.model = model;
+    }
+
     pub fn add_owned_channel(&mut self, channel_id: String) {
         self.owned_channels.insert(channel_id);
     }

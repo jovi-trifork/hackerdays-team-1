@@ -8,7 +8,7 @@ use std::net::SocketAddr;
 use routes::channels::{get_channels, create_channel};
 use routes::messages::{create_message, get_messages};
 use routes::systems::{get_systems, create_system};
-use routes::users::{get_channel_users, get_users};
+use routes::users::{get_channel_users, get_all_users, set_user};
 
 #[tokio::main]
 async fn main() {
@@ -22,7 +22,7 @@ async fn main() {
         )
         .route(
             "/api/v1/users",
-            get(get_users),
+            get(get_all_users).post(set_user),
         )
         .route(
             "/api/v1/channels",
