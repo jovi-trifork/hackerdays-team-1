@@ -3,14 +3,11 @@ use std::net::SocketAddr;
 
 #[tokio::main]
 async fn main() {
-    // Route all requests on "/" endpoint to anonymous handler.
-    //
-    // A handler is an async function which returns something that implements
-    // `axum::response::IntoResponse`.
+    let db = Db::default();
 
-    // A closure or a function can be used as handler.
-
-    let app = Router::new().route("/", get(handler));
+    let app = Router::new()
+        .route("/api/v1/channels/", get(channel_messages))
+        .route();
     //        Router::new().route("/", get(|| async { "Hello, world!" }));
 
     // Address that server will bind to.
@@ -24,7 +21,7 @@ async fn main() {
         .unwrap();
 }
 
-async fn handler() -> &'static str {
+async fn channel_messages() -> &'static str {
     "Hello, world!"
 }
 
