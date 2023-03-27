@@ -1,13 +1,16 @@
 mod todos;
+mod dto;
+
 
 use axum::{
     extract::{Path, State},
     response::IntoResponse,
-    routing::get,
-    Json, Router,
+    routing::{get, Router},
+    Json, 
 };
 use serde::{Deserialize, Serialize};
 use std::{net::SocketAddr, sync::{Arc, RwLock}, collections::HashMap};
+use dto::*;
 use uuid::Uuid;
 
 #[tokio::main]
