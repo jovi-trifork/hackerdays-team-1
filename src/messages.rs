@@ -22,10 +22,10 @@ pub async fn get_messages(
 
 pub async fn create_message(
     Path(channel_id): Path<String>,
-    State(appState): State<AppState>,
+    State(app_state): State<AppState>,
     Json(message): Json<Message>,
 ) -> impl IntoResponse {
-    let mut message_map = appState.messages.write().unwrap();
+    let mut message_map = app_state.messages.write().unwrap();
     message_map
         .entry(channel_id)
         .or_insert(Vec::new())
