@@ -237,17 +237,10 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "chrono",
- "help",
  "serde",
  "tokio",
  "uuid",
 ]
-
-[[package]]
-name = "help"
-version = "0.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5d2c6714f78261bbacbd07338eb21943fa5a25c67760287aecb6aefbec89062"
 
 [[package]]
 name = "hermit-abi"

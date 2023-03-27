@@ -3,13 +3,13 @@ use uuid::Uuid;
 use chrono::NaiveDateTime;
 
 #[derive(Serialize, Deserialize)]
-struct Payload {
+pub struct Payload {
     html: String,
     text: String,
 }
 
 #[derive(Serialize, Deserialize)]
-struct Channel {
+pub struct Channel {
     id: Uuid,
     name: String,
     icon: String,
@@ -19,7 +19,7 @@ struct Channel {
 }
 
 #[derive(Serialize, Deserialize)]
-struct Message {
+pub struct Message {
     id: Uuid,
     timestamp: NaiveDateTime,
     message: Payload,
@@ -27,7 +27,7 @@ struct Message {
 }
 
 #[derive(Serialize, Deserialize)]
-struct User {
+pub struct User {
     id: Uuid,
     name: String,
     status: String,
@@ -37,7 +37,7 @@ struct User {
 
 
 #[derive(Serialize, Deserialize)]
-struct System {
+pub struct System {
     id: Uuid,
     address: String,
     last_sync: NaiveDateTime,
