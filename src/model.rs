@@ -63,6 +63,10 @@ impl Channel {
     pub fn get_owner_id(&self) -> String {
         self.owner_id.clone()
     }
+
+    pub fn inc_size(&mut self) {
+        self.size += 1;
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -86,12 +90,17 @@ pub struct User {
     status: String,
     from_system: Uuid,
     avatar: String,
-    owned_channels: HashSet<String>
+    owned_channels: HashSet<String>,
+    blocked_users: HashSet<String>
 }
 
 impl User {
     pub fn add_owned_channel(&mut self, channel_id: String) {
         self.owned_channels.insert(channel_id);
+    }
+
+    pub fn add_blocked_user(&mut self, user_id: String) {
+        self.blocked_users.insert(user_id);
     }
 }
 
@@ -116,5 +125,4 @@ impl System {
     pub fn get_id(&self) -> Uuid {
         self.id.clone()
     }
-
 }
