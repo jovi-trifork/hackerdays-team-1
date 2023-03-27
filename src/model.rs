@@ -2,6 +2,7 @@ use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc};
 use std::{
     collections::HashMap,
+    collections::HashSet,
     sync::{Arc, RwLock},
 };
 
@@ -37,13 +38,30 @@ pub struct Channel {
     name: String,
     icon: String,
     description: String,
-    visibiliy: bool,
+    visibility: bool,
     size: i32,
+    owner_id: String
 }
 
 impl Channel {
+    pub fn new (id: String, owner_id: String) -> Channel {
+        Channel {
+            id,
+            name: "".to_string(),
+            icon: "".to_string(),
+            description: "".to_string(),
+            visibility: true,
+            size: 0,
+            owner_id
+        }
+    }
+
     pub fn get_id(&self) -> String {
         self.id.clone()
+    }
+
+    pub fn get_owner_id(&self) -> String {
+        self.owner_id.clone()
     }
 }
 
@@ -55,13 +73,30 @@ pub struct Message {
     from_user: Uuid,
 }
 
+impl Message {
+    pub fn get_owner_id(&self) -> String {
+        self.from_user.clone()
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct User {
-    id: Uuid,
+    id: String,
     name: String,
     status: String,
     from_system: Uuid,
     avatar: String,
+    owned_channels: HashSet<String>
+}
+
+impl User {
+    pub fn get_id(&self) -> String {
+        self.id.clone()
+    }
+
+    pub fn add_owned_channel(&mut self, channel_id: String) {
+        self.owned_channels.insert(channel_id);
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone)]
