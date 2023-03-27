@@ -35,15 +35,27 @@ pub struct Payload {
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Channel {
     id: String,
-    name: Option<String>,
-    icon: Option<String>,
-    description: Option<String>,
+    name: String,
+    icon: String,
+    description: String,
     visibility: bool,
     size: i32,
     owner_id: String
 }
 
 impl Channel {
+    pub fn new (id: String, owner_id: String) -> Channel {
+        Channel {
+            id,
+            name: "".to_string(),
+            icon: "".to_string(),
+            description: "".to_string(),
+            visibility: true,
+            size: 0,
+            owner_id
+        }
+    }
+
     pub fn get_id(&self) -> String {
         self.id.clone()
     }
@@ -59,6 +71,12 @@ pub struct Message {
     timestamp: String,
     message: Payload,
     from_user: Uuid,
+}
+
+impl Message {
+    pub fn get_owner_id(&self) -> String {
+        self.from_user.clone()
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone)]
