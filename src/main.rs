@@ -1,5 +1,7 @@
 use axum::{routing::get, Router};
 use std::net::SocketAddr;
+use serde::{Serialize, Deserialize};
+use uuid::Uuid;
 
 #[tokio::main]
 async fn main() {
@@ -28,13 +30,15 @@ async fn handler() -> &'static str {
     "Hello, world!"
 }
 
+#[derive(Serialize, Deserialize)]
 struct Message {
-    id: String,
+    id: Uuid,
     timestamp: String,
     message: Payload,
     from_user: String,
 }
 
+#[derive(Serialize, Deserialize)]
 struct Payload {
     html: String,
     text: String,
