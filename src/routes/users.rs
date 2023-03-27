@@ -16,6 +16,7 @@ pub async fn get_all_users(State(app_state): State<AppState>) -> impl IntoRespon
         .iter()
         .map(|(_, internal_user)| internal_user.get_model())
         .collect();
+    println!("Size is: {}", user_list.len());
 
     (StatusCode::OK, Json(user_list))
 }
@@ -48,7 +49,7 @@ pub async fn set_user(
 }
 
 
-pub async fn update_internal_user(
+pub fn update_internal_user(
     app_state: &AppState,
     model: User
 ) -> InternalUser {
@@ -58,17 +59,19 @@ pub async fn update_internal_user(
     if user_opt.is_some() {
         let internal_user = user_opt.unwrap();
         internal_user.set_model(model.clone());
+        println!("Found user");
 
         return internal_user.clone();
     } else {
         let internal_user = InternalUser::new(model.get_id(), model, HashSet::new(), HashSet::new());
         users_map.insert(internal_user.get_id(), internal_user.clone());
+        println!("Size is: {}", users_map.len());
 
         return internal_user;
     }
 }
 
-pub async fn add_blocked_user(
+pub fn add_blocked_user(
     app_state: &AppState,
     user_id: String,
     id_to_block: String
@@ -82,11 +85,11 @@ pub async fn add_blocked_user(
 
         return internal_user.clone();
     } else {
-        update_internal_user(app_state, User::new(user_id)).await
+        update_internal_user(app_state, User::new(user_id))
     }
 }
 
-pub async fn add_owned_channel(
+pub fn add_owned_channel(
     app_state: &AppState,
     user_id: String,
     channel_id: String
@@ -100,6 +103,6 @@ pub async fn add_owned_channel(
 
         return internal_user.clone();
     } else {
-        update_internal_user(app_state, User::new(user_id)).await
+        update_internal_user(app_state, User::new(user_id))
     }
 }
