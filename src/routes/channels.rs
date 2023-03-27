@@ -1,4 +1,4 @@
-use axum::{extract::State, http::StatusCode, response::IntoResponse, Json, extract::Query};
+use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 
 use crate::model::{AppState, Channel};
 
@@ -13,13 +13,12 @@ pub async fn create_channel(
     let user_id = channel.get_owner_id();
     let user_opt = users_map.get_mut(&user_id);
 
-    if (user_opt.is_some()) {
+    if user_opt.is_some() {
         let user = user_opt.unwrap();
         user.add_owned_channel(channel.get_id())
     } else {
         print!("No user: {:?}", channel.get_owner_id())
     }
-
 
     (StatusCode::CREATED, Json(channel))
 }

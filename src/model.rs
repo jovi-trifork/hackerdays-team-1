@@ -90,10 +90,6 @@ pub struct User {
 }
 
 impl User {
-    pub fn get_id(&self) -> String {
-        self.id.clone()
-    }
-
     pub fn add_owned_channel(&mut self, channel_id: String) {
         self.owned_channels.insert(channel_id);
     }

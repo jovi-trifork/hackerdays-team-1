@@ -3,7 +3,7 @@ mod model;
 mod routes;
 
 use axum::routing::{get, Router};
-use model::*;
+use model::AppState;
 use std::net::SocketAddr;
 use routes::channels::{get_channels, create_channel};
 use routes::messages::{create_message, get_messages};
