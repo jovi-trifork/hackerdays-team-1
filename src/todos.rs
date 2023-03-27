@@ -165,18 +165,3 @@ struct Todo {
     text: String,
     completed: bool,
 }
-Footer
-© 2023 GitHub, Inc.
-Footer navigation
-Terms
-Privacy
-Security
-Status
-Docs
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
-axum/main.rs at main · tokio-rs/axum

@@ -1,21 +1,31 @@
-use axum::{routing::get, Router};
-use std::net::SocketAddr;
-use serde::{Serialize, Deserialize};
+mod todos;
+
+use axum::{
+    extract::{Path, State},
+    response::IntoResponse,
+    routing::get,
+    Json, Router,
+};
+use serde::{Deserialize, Serialize};
+use std::{net::SocketAddr, sync::{Arc, RwLock}, collections::HashMap};
 use uuid::Uuid;
 
 #[tokio::main]
 async fn main() {
-    let db = Db::default();
+    let message_db = ChannelMessages::default();
 
     let app = Router::new()
-        .route("/api/v1/channels/", get(channel_messages))
-        .route();
+        .route(
+            "/api/v1/channels/:channel_id/messages",
+            get(channel_messages),
+        )
+        .post(create_message)
+        .with_state(message_db);
     //        Router::new().route("/", get(|| async { "Hello, world!" }));
 
     // Address that server will bind to.
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
-    // Use `hyper::server::Server` which is re-exported through `axum::Server` to serve the app.
     axum::Server::bind(&addr)
         // Hyper server takes a make service.
         .serve(app.into_make_service())
@@ -23,9 +33,27 @@ async fn main() {
         .unwrap();
 }
 
-async fn channel_messages() -> &'static str {
-    "Hello, world!"
+async fn channel_messages(
+    Path(id): Path<Uuid>,
+    State(messages): State<ChannelMessages>,
+) -> impl IntoResponse {
+    let messages = messages.read().unwrap().get(&id).cloned().unwrap_or_default();
+    Json(messages)
 }
+
+async fn create_message(Json(message): Json<Message>, State(db): State<Db>) -> impl IntoResponse {
+    let message = Message {
+        id: Uuid::new_v4(),
+        timestamp: Utc::now().to_rfc3339(),
+        message,
+        from_user: "test".to_string(),
+    };
+
+    let mut db = db.write().unwrap();
+    db.insert(message.id, message);
+}
+
+type ChannelMessages = Arc<RwLock<HashMap<Uuid, Vec<Message>>>>;
 
 #[derive(Serialize, Deserialize)]
 struct Message {
