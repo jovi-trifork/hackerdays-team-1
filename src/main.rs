@@ -35,7 +35,7 @@ async fn main() {
             "/api/v1/channels/:channel_id/messages",
             get(get_messages).post(create_message),
         )
-        .with_state(state.messages);
+        .with_state(state);
     //        Router::new().route("/", get(|| async { "Hello, world!" }));
 
     // Address that server will bind to.
@@ -50,9 +50,9 @@ async fn main() {
 
 async fn get_messages(
     Path(id): Path<String>,
-    State(message_db): State<ChannelMessages>,
+    State(appState): State<AppState>,
 ) -> impl IntoResponse {
-    let message_map = message_db.read().unwrap();
+    let message_map = appState.messages.read().unwrap();
     let ch_messages = message_map.get(&id);
     if ch_messages.is_some() {
         Json(ch_messages.unwrap().clone())
@@ -63,10 +63,10 @@ async fn get_messages(
 
 async fn create_message(
     Path(channel_id): Path<String>,
-    State(messages): State<ChannelMessages>,
+    State(appState): State<AppState>,
     Json(message): Json<Message>,
 ) -> impl IntoResponse {
-    let mut message_map = messages.write().unwrap();
+    let mut message_map = appState.messages.write().unwrap();
     message_map.entry(channel_id).or_insert(Vec::new()).push(message.clone());
     (StatusCode::CREATED, Json(message))
 }
