@@ -31,7 +31,7 @@ pub async fn create_message(
     let entry = message_map.entry(channel_id.clone());
     // is entry vacant?
     match entry {
-        Entry::Vacant(v) => {
+        Entry::Vacant(_) => {
             app_state
                 .channels
                 .write()
