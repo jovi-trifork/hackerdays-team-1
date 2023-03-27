@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
-use chrono::NaiveDateTime;
+use chrono::{DateTime, Utc};
 use std::{
     collections::HashMap,
     sync::{Arc, RwLock},
@@ -9,7 +9,7 @@ use std::{
 type ChannelMessages = Arc<RwLock<HashMap<String, Vec<Message>>>>;
 type Channels = Arc<RwLock<HashMap<String, Vec<Channel>>>>;
 type Users = Arc<RwLock<HashMap<String, Vec<User>>>>;
-type Systems = Arc<RwLock<HashMap<String, Vec<System>>>>;
+type Systems = Arc<RwLock<HashMap<String, System>>>;
 
 #[derive(Clone, Default)]
 pub struct AppState {
@@ -52,10 +52,21 @@ pub struct User {
     avatar: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct System {
     id: Uuid,
     address: String,
-    last_sync: NaiveDateTime,
+    last_sync: DateTime<Utc>,
     status: String,
+}
+
+impl System {
+    pub fn new(address: String) -> Self {
+        System {
+            id: Uuid::new_v4(),
+            address,
+            last_sync: chrono::Utc::now(),
+            status: "".to_string(),
+        }
+    }
 }

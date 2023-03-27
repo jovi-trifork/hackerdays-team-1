@@ -1,24 +1,25 @@
 use axum::{
-    extract::{Path, State},
-    http::StatusCode,
+    extract::{State},
     response::IntoResponse,
     Json,
 };
 
-use crate::model::{AppState, Message};
+use crate::model::{AppState, System};
 
 pub async fn get_systems(
     State(app_state): State<AppState>,
 ) -> impl IntoResponse {
-    let message_map = app_state.systems.read().unwrap();
+    let systems_map = app_state.systems.read().unwrap();
 
-    panic!("get_systems")
+    let systems: Vec<System> = systems_map.values().cloned().collect();
+    Json(systems)
 }
 
 pub async fn create_system(
     State(app_state): State<AppState>,
+    address: String
 ) -> impl IntoResponse {
-    let message_map = app_state.systems.read().unwrap();
+    let mut systems_map = app_state.systems.write().unwrap();
 
-    panic!("create_system")
+    systems_map.insert(address.clone(), System::new(address));
 }

@@ -3,6 +3,7 @@ mod messages;
 mod users;
 mod channels;
 mod systems;
+
 use axum::{
     routing::{get, Router},
 };
@@ -20,6 +21,7 @@ async fn main() {
     let state = AppState::default();
 
     let app = Router::new()
+        .route("/", get(get_index))
         .route(
             "/api/v1/channels/:channel_id/messages",
             get(get_messages).post(create_message),
@@ -42,12 +44,15 @@ async fn main() {
     // Address that server will bind to.
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
-    axum::Server::bind(&addr)
+    let server = axum::Server::bind(&addr)
         // Hyper server takes a make service.
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+        .serve(app.into_make_service());
+
+    println!("Server running at: http://{}", addr);
+    server.await.unwrap();
 }
 
 
-
+pub async fn get_index() -> &'static str {
+    "Welcome!"
+}
