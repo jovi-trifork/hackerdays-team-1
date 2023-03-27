@@ -35,6 +35,10 @@ async fn main() {
             "/api/v1/channels/:channel_id/messages",
             get(get_messages).post(create_message),
         )
+        .route(
+            "/api/v1/users",
+            get(get_users),
+        )
         .with_state(state);
     //        Router::new().route("/", get(|| async { "Hello, world!" }));
 
@@ -70,5 +74,13 @@ async fn create_message(
     message_map.entry(channel_id).or_insert(Vec::new()).push(message.clone());
     (StatusCode::CREATED, Json(message))
 }
+
+async fn get_users(State(appState): State<AppState>) -> impl IntoResponse {
+    let user_map = appState.users.read().unwrap();
+    let user_list: Vec<User> = user_map.values().flatten().cloned().collect();
+
+    (StatusCode::OK, Json(user_list))
+}
+
 
 

@@ -33,6 +33,8 @@ use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use uuid::Uuid;
 
+
+
 #[tokio::main]
 async fn main() {
     tracing_subscriber::registry()

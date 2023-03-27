@@ -8,7 +8,7 @@ pub struct Payload {
     text: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Channel {
     id: Uuid,
     name: String,
@@ -26,7 +26,7 @@ pub struct Message {
     from_user: Uuid,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct User {
     id: Uuid,
     name: String,
