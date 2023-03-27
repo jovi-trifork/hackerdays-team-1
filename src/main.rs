@@ -35,7 +35,7 @@ async fn main() {
         .with_state(state);
 
     // Address that server will bind to.
-    let addr = SocketAddr::from(([127, 0, 0, 1], 80));
+    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
     axum::Server::bind(&addr)
         // Hyper server takes a make service.

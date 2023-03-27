@@ -43,8 +43,9 @@ pub async fn create_message(
     }
 
     message_map
-        .entry(channel_id)
+        .entry(channel_id.clone())
         .or_insert(Vec::new())
         .push(message.clone());
+    app_state.channels.write().unwrap().get_mut(&channel_id).unwrap().inc_size();
     (StatusCode::CREATED, Json(message))
 }

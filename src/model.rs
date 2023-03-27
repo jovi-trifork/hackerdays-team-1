@@ -63,6 +63,10 @@ impl Channel {
     pub fn get_owner_id(&self) -> String {
         self.owner_id.clone()
     }
+
+    pub fn inc_size(&mut self) {
+        self.size += 1;
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone)]
