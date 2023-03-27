@@ -29,7 +29,7 @@ async fn main() {
     let app = Router::new()
         .route(
             "/api/v1/channels/:channel_id/messages",
-            get(get_channel_messages),
+            get(get_messages).post(create_message),
         )
         .with_state(state.messages);
     //        Router::new().route("/", get(|| async { "Hello, world!" }));
@@ -44,13 +44,12 @@ async fn main() {
         .unwrap();
 }
 
-async fn get_channel_messages(
+async fn get_messages(
     Path(id): Path<String>,
-    State(messages): State<ChannelMessages>,
+    State(message_db): State<ChannelMessages>,
 ) -> impl IntoResponse {
-    let x = messages.read();
-    let y = x.unwrap();
-    let ch_messages = y.get(&id);
+    let message_map = message_db.read().unwrap();
+    let ch_messages = message_map.get(&id);
     if ch_messages.is_some() {
         Json(ch_messages.unwrap().clone())
     } else {
@@ -58,11 +57,14 @@ async fn get_channel_messages(
     }
 }
 
-// async fn create_message(
-//     Path(channel_id): Path<Uuid>,
-//     Json(message): Json<Message>,
-//     State(db): State<ChannelMessages>,
-// ) -> () {
-//     db.write().
-// }
+async fn create_message(
+    Path(channel_id): Path<String>,
+    State(messages): State<ChannelMessages>,
+    Json(message): Json<Message>,
+) -> impl IntoResponse {
+    let mut message_map = messages.write().unwrap();
+    message_map.entry(channel_id).or_insert(Vec::new()).push(message.clone());
+    (StatusCode::CREATED, Json(message))
+}
+
 
