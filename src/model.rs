@@ -1,31 +1,26 @@
 use serde::{Serialize, Deserialize};
-use uuid::Uuid;
 use chrono::NaiveDateTime;
 use std::{
     collections::HashMap,
     sync::{Arc, RwLock},
 };
 
-type ChannelMessages = Arc<RwLock<HashMap<String, Vec<Message>>>>;
-type Channels = Arc<RwLock<HashMap<String, Vec<Channel>>>>;
-type Users = Arc<RwLock<HashMap<String, Vec<User>>>>;
-<<<<<<< HEAD
-type ChannelUsers = Arc<RwLock<HashMap<String, Vec<String>>>>;
-
-=======
+type Uuid = String;
+type ChannelId = String;
+type UserId = String;
+type ChannelMessages = Arc<RwLock<HashMap<ChannelId, Vec<Message>>>>;
+type Channels = Arc<RwLock<HashMap<ChannelId, Channel>>>;
+type Users = Arc<RwLock<HashMap<UserId, User>>>;
 type Systems = Arc<RwLock<HashMap<String, Vec<System>>>>;
->>>>>>> a835078c7b775aa008182bed217dcea2d8926da0
+type ChannelUsers = Arc<RwLock<HashMap<ChannelId, Vec<UserId>>>>;
 
 #[derive(Clone, Default)]
 pub struct AppState {
     pub messages: ChannelMessages,
     pub channels: Channels,
     pub users: Users,
-<<<<<<< HEAD
-    pub channel_users: ChannelUsers,
-=======
     pub systems: Systems,
->>>>>>> a835078c7b775aa008182bed217dcea2d8926da0
+    pub channel_users: ChannelUsers,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
