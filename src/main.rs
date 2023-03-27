@@ -8,7 +8,7 @@ use channels::{get_channels, create_channel};
 use messages::{create_message, get_messages};
 use model::*;
 use std::net::SocketAddr;
-use systems::{create_system, get_systems};
+use systems::{get_systems, create_system};
 use users::{get_channel_users, get_users};
 
 #[tokio::main]
@@ -32,6 +32,10 @@ async fn main() {
         .route(
             "/api/v1/channels/{channel_id}/users", 
             get(get_channel_users),
+        )  
+        .route(
+            "/api/v1/systems", 
+            get(get_systems).post(create_system), 
         )   
         .with_state(state);
 

@@ -11,7 +11,7 @@ type UserId = String;
 type ChannelMessages = Arc<RwLock<HashMap<ChannelId, Vec<Message>>>>;
 type Channels = Arc<RwLock<HashMap<ChannelId, Channel>>>;
 type Users = Arc<RwLock<HashMap<UserId, User>>>;
-type Systems = Arc<RwLock<HashMap<String, System>>>;
+type Systems = Arc<RwLock<HashMap<Uuid, System>>>;
 type ChannelUsers = Arc<RwLock<HashMap<ChannelId, Vec<UserId>>>>;
 type UserChannels = Arc<RwLock<HashMap<String, Vec<Channel>>>>;
 
@@ -81,4 +81,9 @@ impl System {
             status: "".to_string(),
         }
     }
+
+    pub fn get_id(&self) -> Uuid {
+        self.id.clone()
+    }
+
 }

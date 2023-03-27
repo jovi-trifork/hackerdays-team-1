@@ -21,5 +21,7 @@ pub async fn create_system(
 ) -> impl IntoResponse {
     let mut systems_map = app_state.systems.write().unwrap();
 
-    systems_map.insert(address.clone(), System::new(address));
+    let system = System::new(address);
+
+    systems_map.insert(system.get_id(), system);
 }
