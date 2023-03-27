@@ -62,17 +62,3 @@ async fn create_message(Json(message): Json<Message>, State(db): State<Db>) -> i
 }
 
 type ChannelMessages = Arc<RwLock<HashMap<Uuid, Vec<Message>>>>;
-
-#[derive(Serialize, Deserialize)]
-struct Message {
-    id: Uuid,
-    timestamp: String,
-    message: Payload,
-    from_user: String,
-}
-
-#[derive(Serialize, Deserialize)]
-struct Payload {
-    html: String,
-    text: String,
-}
