@@ -2,7 +2,7 @@ use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 use chrono::NaiveDateTime;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Payload {
     html: String,
     text: String,
@@ -18,10 +18,10 @@ pub struct Channel {
     size: i32,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Message {
     id: Uuid,
-    timestamp: NaiveDateTime,
+    timestamp: String,
     message: Payload,
     from_user: Uuid,
 }

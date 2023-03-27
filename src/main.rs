@@ -1,12 +1,11 @@
 mod dto;
-mod todos;
-
 use axum::{
     extract::{Path, State},
     response::IntoResponse,
     routing::{get, Router},
-    Json,
+    Json, http::StatusCode,
 };
+use chrono::Utc;
 use dto::*;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -16,16 +15,23 @@ use std::{
 };
 use uuid::Uuid;
 
+type ChannelMessages = Arc<RwLock<HashMap<String, Vec<Message>>>>;
+
+#[derive(Clone, Default)]
+struct AppState {
+    messages: ChannelMessages,
+}
+
 #[tokio::main]
 async fn main() {
-    let message_db = ChannelMessages::default();
+    let state = AppState::default();
 
     let app = Router::new()
         .route(
             "/api/v1/channels/:channel_id/messages",
-            get(channel_messages).post(create_message),
+            get(get_channel_messages),
         )
-        .with_state(message_db);
+        .with_state(state.messages);
     //        Router::new().route("/", get(|| async { "Hello, world!" }));
 
     // Address that server will bind to.
@@ -38,27 +44,25 @@ async fn main() {
         .unwrap();
 }
 
-async fn channel_messages(
-    Path(id): Path<Uuid>,
+async fn get_channel_messages(
+    Path(id): Path<String>,
     State(messages): State<ChannelMessages>,
 ) -> impl IntoResponse {
-    let messages = messages
-        .read()
-        .unwrap()
-        .get(&id);
-    Json(messages)
+    let x = messages.read();
+    let y = x.unwrap();
+    let ch_messages = y.get(&id);
+    if ch_messages.is_some() {
+        Json(ch_messages.unwrap().clone())
+    } else {
+        Json(Vec::<Message>::new())
+    }
 }
 
-async fn create_message(Json(message): Json<Message>, State(db): State<Db>) -> impl IntoResponse {
-    let message = Message {
-        id: Uuid::
-        timestamp: Utc::now().to_rfc3339(),
-        message,
-        from_user: "test".to_string(),
-    };
+// async fn create_message(
+//     Path(channel_id): Path<Uuid>,
+//     Json(message): Json<Message>,
+//     State(db): State<ChannelMessages>,
+// ) -> () {
+//     db.write().
+// }
 
-    let mut db = db.write().unwrap();
-    db.insert(message.id, message);
-}
-
-type ChannelMessages = Arc<RwLock<HashMap<Uuid, Vec<Message>>>>;
