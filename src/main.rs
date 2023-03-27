@@ -45,15 +45,13 @@ async fn channel_messages(
     let messages = messages
         .read()
         .unwrap()
-        .get(&id)
-        .cloned()
-        .unwrap_or_default();
+        .get(&id);
     Json(messages)
 }
 
 async fn create_message(Json(message): Json<Message>, State(db): State<Db>) -> impl IntoResponse {
     let message = Message {
-        id: Uuid::new_v4(),
+        id: Uuid::
         timestamp: Utc::now().to_rfc3339(),
         message,
         from_user: "test".to_string(),
