@@ -42,21 +42,21 @@ pub async fn set_user(
     State(app_state): State<AppState>,
     Json(user): Json<User>
 ) -> impl IntoResponse {
-    update_internal_user(State(app_state), user.clone());
+    update_internal_user(&app_state, user.clone());
 
     (StatusCode::CREATED, Json(user))
 }
 
 
 pub async fn update_internal_user(
-    State(app_state): State<AppState>,
+    app_state: &AppState,
     model: User
 ) -> InternalUser {
     let mut users_map = app_state.internalUsers.write().unwrap();
     let user_opt = users_map.get_mut(&model.get_id());
 
-    if (user_opt.is_some()) {
-        let mut internal_user = user_opt.unwrap();
+    if user_opt.is_some() {
+        let internal_user = user_opt.unwrap();
         internal_user.set_model(model.clone());
 
         return internal_user.clone();
@@ -68,3 +68,38 @@ pub async fn update_internal_user(
     }
 }
 
+pub async fn add_blocked_user(
+    app_state: &AppState,
+    user_id: String,
+    id_to_block: String
+) -> InternalUser {
+    let mut users_map = app_state.internalUsers.write().unwrap();
+    let user_opt = users_map.get_mut(&user_id);
+
+    if user_opt.is_some() {
+        let internal_user = user_opt.unwrap();
+        internal_user.add_blocked_user(id_to_block.clone());
+
+        return internal_user.clone();
+    } else {
+        panic!("Could not find user");
+    }
+}
+
+pub async fn add_owned_channel(
+    app_state: &AppState,
+    user_id: String,
+    channel_id: String
+) -> InternalUser {
+    let mut users_map = app_state.internalUsers.write().unwrap();
+    let user_opt = users_map.get_mut(&user_id);
+
+    if user_opt.is_some() {
+        let internal_user = user_opt.unwrap();
+        internal_user.add_owned_channel(channel_id.clone());
+
+        return internal_user.clone();
+    } else {
+        panic!("Could not find user");
+    }
+}
