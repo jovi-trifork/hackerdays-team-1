@@ -1,10 +1,14 @@
 mod model;
 mod messages;
+mod users;
+mod channels;
 use axum::{
     routing::{get, Router},
 };
 use messages::{get_messages, create_message};
 use model::*;
+use users::get_users;
+use channels::get_channels;
 use std::{
     net::SocketAddr,
 };
@@ -40,18 +44,4 @@ async fn main() {
 }
 
 
-
-async fn get_users(State(appState): State<AppState>) -> impl IntoResponse {
-    let user_map = appState.users.read().unwrap();
-    let user_list: Vec<User> = user_map.values().flatten().cloned().collect();
-
-    (StatusCode::OK, Json(user_list))
-}
-
-async fn get_channels(State(appState): State<AppState>) -> impl IntoResponse {
-    let channel_map = appState.channels.read().unwrap();
-    let channel_list: Vec<User> = channel_map.values().flatten().cloned().collect();
-
-    (StatusCode::OK, Json(channel_list))
-}
 
