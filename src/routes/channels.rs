@@ -17,10 +17,10 @@ pub async fn create_channel(
         let user = user_opt.unwrap();
         user.add_owned_channel(channel.get_id())
     } else {
-        print!("No user: {:?}", channel.get_owner_id())
+        print!("No user: {:?}", channel.get_owner_id());
+        (StatusCode::INTERNAL_SERVER_ERROR.into_response());
     }
-
-    (StatusCode::CREATED, Json(channel))
+    (StatusCode::CREATED, Json(channel)).into_response()
 }
 
 pub async fn get_channels(State(app_state): State<AppState>) -> impl IntoResponse {
