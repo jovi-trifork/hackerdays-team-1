@@ -27,3 +27,15 @@ async fn main() {
 async fn handler() -> &'static str {
     "Hello, world!"
 }
+
+struct Message {
+    id: String,
+    timestamp: String,
+    message: Payload,
+    from_user: String,
+}
+
+struct Payload {
+    html: String,
+    text: String,
+}
