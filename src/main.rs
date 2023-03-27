@@ -18,6 +18,14 @@ async fn main() {
             "/api/v1/channels/:channel_id/messages",
             get(get_messages).post(create_message),
         )
+        .route(
+            "/api/v1/users",
+            get(get_users),
+        )
+        .route(
+            "/api/v1/channels",
+            get(get_channels),
+        )
         .with_state(state);
     //        Router::new().route("/", get(|| async { "Hello, world!" }));
 
@@ -33,4 +41,17 @@ async fn main() {
 
 
 
+async fn get_users(State(appState): State<AppState>) -> impl IntoResponse {
+    let user_map = appState.users.read().unwrap();
+    let user_list: Vec<User> = user_map.values().flatten().cloned().collect();
+
+    (StatusCode::OK, Json(user_list))
+}
+
+async fn get_channels(State(appState): State<AppState>) -> impl IntoResponse {
+    let channel_map = appState.channels.read().unwrap();
+    let channel_list: Vec<User> = channel_map.values().flatten().cloned().collect();
+
+    (StatusCode::OK, Json(channel_list))
+}
 
