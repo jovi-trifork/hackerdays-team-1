@@ -23,6 +23,10 @@ pub async fn create_internal_channel(
     (StatusCode::CREATED, Json(channel))
 }
 
+pub async fn get_internal_channels(State(app_state): State<AppState>) -> impl IntoResponse {
+
+}
+
 pub async fn get_channels(State(app_state): State<AppState>) -> impl IntoResponse {
     let channel_map = app_state.internal_channels.read().unwrap();
     let channel_list: Vec<Channel> = channel_map

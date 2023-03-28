@@ -50,17 +50,11 @@ pub async fn set_user(
     (StatusCode::CREATED, Json(user))
 }
 
-pub async fn get_internal_user(
-    Path(user_id): Path<String>,
-    State(app_state): State<AppState>
-) -> impl IntoResponse {
+pub async fn get_internal_users(State(app_state): State<AppState>) -> impl IntoResponse {
     let users_map = app_state.internal_users.read().unwrap();
-    let user_opt = users_map.get(&user_id);
+    let user_list: Vec<InternalUser> = users_map.values().cloned().collect();
 
-    if let Some(user) = user_opt {
-        (StatusCode::OK, Json(user.clone())).into_response();
-    }
-    (StatusCode::NOT_FOUND).into_response()
+    (StatusCode::OK, Json(user_list))
 }
 
 pub async fn set_internal_user(
