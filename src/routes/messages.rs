@@ -7,7 +7,7 @@ use axum::{
     Json,
 };
 
-use crate::model::{AppState, Channel, Message};
+use crate::model::{AppState, Channel, Message, InternalChannel};
 
 pub async fn get_messages(
     Path(channel_id): Path<String>,
@@ -33,10 +33,14 @@ pub async fn create_message(
     match entry {
         Entry::Vacant(_) => {
             app_state
-                .channels
+                .internal_channels
                 .write()
                 .unwrap()
-                .insert(channel_id.clone(), Channel::new(channel_id.clone(), message.get_owner_id()));
+                .insert(channel_id.clone(), InternalChannel::new(
+                    channel_id.clone(), 
+                    Channel::new(channel_id.clone()), 
+                    message.get_owner_id())
+                );
             message_map.insert(channel_id.clone(), Vec::<Message>::new());
         }
         Entry::Occupied(_) => {}
@@ -46,7 +50,7 @@ pub async fn create_message(
         .entry(channel_id.clone())
         .or_insert(Vec::new())
         .push(message.clone());
-    app_state.channels.write().unwrap().get_mut(&channel_id).unwrap().inc_size();
+    app_state.internal_channels.write().unwrap().get_mut(&channel_id).unwrap().inc_size();
     
     (StatusCode::CREATED, Json(message))
 }

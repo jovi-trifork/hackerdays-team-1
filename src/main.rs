@@ -5,10 +5,10 @@ mod routes;
 use axum::routing::{get, Router};
 use model::AppState;
 use std::net::SocketAddr;
-use routes::channels::{get_channels, create_channel};
+use routes::channels::{get_channels, create_internal_channel};
 use routes::messages::{create_message, get_messages};
 use routes::systems::{get_systems, create_system};
-use routes::users::{get_channel_users, get_all_users, set_user};
+use routes::users::{get_channel_users, get_all_users, set_user, get_internal_user, set_internal_user};
 
 #[tokio::main]
 async fn main() {
@@ -25,8 +25,12 @@ async fn main() {
             get(get_all_users).post(set_user),
         )
         .route(
+            "/internal/users/:user_id",
+            get(get_internal_user).post(set_internal_user)
+        )
+        .route(
             "/api/v1/channels",
-            get(get_channels).post(create_channel),
+            get(get_channels).post(create_internal_channel),
         )
         .route(
             "/api/v1/channels/{channel_id}/users", 
