@@ -5,7 +5,7 @@ use axum::{
     Json,
 };
 use std::{
-    collections::{HashSet, HashMap}, sync::RwLockWriteGuard
+    collections::{HashSet, HashMap}, sync::{Arc, RwLock, RwLockWriteGuard}
 };
 
 use crate::model::{AppState, User, InternalUser};
@@ -43,7 +43,9 @@ pub async fn set_user(
     Json(user): Json<User>
 ) -> impl IntoResponse {
     let mut user_map = app_state.internal_users.write().unwrap();
-    update_internal_user(&mut user_map, user.clone());
+    let mut internal_user = get_or_create_user(&user_map, user.get_id().clone());
+    internal_user.set_model(user.clone());
+    user_map.insert(user.get_id().clone(), internal_user);
 
     (StatusCode::CREATED, Json(user))
 }
@@ -74,38 +76,20 @@ pub async fn set_internal_user(
     (StatusCode::OK, Json(user))
 }
 
-pub fn update_internal_user(
-    users_map: &mut HashMap<String, InternalUser>,
-    model: User
-) -> InternalUser {
-    let user_opt = users_map.get_mut(&model.get_id());
-
-    if user_opt.is_some() {
-        let internal_user = user_opt.unwrap();
-        internal_user.set_model(model.clone());
-        return internal_user.clone()
-    } else {
-        let internal_user = InternalUser::new(model.get_id(), model, HashSet::new(), HashSet::new());
-        users_map.insert(internal_user.get_id(), internal_user.clone());
-        return internal_user
-    }
-}
-
-pub fn add_owned_channel(
-    users_map: &mut RwLockWriteGuard<HashMap<String, InternalUser>>,
+pub fn get_or_create_user(
+    users_map: &RwLockWriteGuard<HashMap<String, InternalUser>>,
     user_id: String,
-    channel_id: String
 ) -> InternalUser {
-    println!("Aquired internal users state");
-    let user_opt = users_map.get_mut(&user_id);
-    print!("aquired user opt");
-    match user_opt {
-        Some(internal_user) => {
-            internal_user.add_owned_channel(channel_id.clone());
-            return internal_user.clone();
-        },
-        None => {
-            update_internal_user(users_map, User::new(user_id))
-        }
+    let user_opt = users_map.get(&user_id);
+
+    if let Some(user) = user_opt {
+        return user.clone();
     }
+
+    return InternalUser::new(
+        user_id.clone(),
+        User::new(user_id.clone()),
+        HashSet::new(),
+        HashSet::new(),
+    );
 }
