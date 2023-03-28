@@ -36,6 +36,22 @@ pub struct AppStateInternal {
     pub systems: SystemsSync,
 }
 
+impl AppStateInternal {
+    pub fn merge(&self, state: ServerSyncAppState) {
+        self.messages
+            .write().unwrap()
+            .extend(state.messages);
+
+        self.internal_channels
+            .write().unwrap()
+            .extend(state.internal_channels);
+
+        self.internal_users
+            .write().unwrap()
+            .extend(state.internal_users);
+    }
+}
+
 #[derive(Default, Debug)]
 pub struct ServerSyncAppState {
     pub messages: InternalChannelMessages,
@@ -51,6 +67,7 @@ pub struct Payload {
 
 
 pub type GetChannelsResponse = Vec<Channel>;
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Channel {
     id: String,

@@ -88,11 +88,10 @@ mod server_sync {
         println!("Polling systems {addresses:?}");
     
             for system in systems.values() {
-                let state = get_state(system).await;
-                println!("{state:?}")
+                let system_state = get_state(system).await.unwrap();
+                println!("{system_state:?}");
 
-                // TODO: Merge
-
+                state.merge(system_state)
             }
     }
 
