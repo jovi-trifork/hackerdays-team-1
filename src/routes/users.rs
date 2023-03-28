@@ -57,12 +57,10 @@ pub async fn get_internal_user(
     let users_map = app_state.internal_users.read().unwrap();
     let user_opt = users_map.get(&user_id);
 
-    if user_opt.is_some() {
-        let user = user_opt.unwrap().clone();
-        (StatusCode::OK, Json(user.clone())).into_response()
-    } else {
-        (StatusCode::NOT_FOUND).into_response()
+    if let Some(user) = user_opt {
+        (StatusCode::OK, Json(user.clone())).into_response();
     }
+    (StatusCode::NOT_FOUND).into_response()
 }
 
 pub async fn set_internal_user(
