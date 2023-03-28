@@ -42,9 +42,9 @@ pub async fn set_user(
     Json(user): Json<User>
 ) -> impl IntoResponse {
     let mut user_map = app_state.internal_users.write().unwrap();
-    let mut internal_user = get_or_create_user(&user_map, user.get_id().clone());
+    let mut internal_user = get_or_create_user(&user_map, user.get_id());
     internal_user.set_model(user.clone());
-    user_map.insert(user.get_id().clone(), internal_user);
+    user_map.insert(user.get_id().to_owned(), internal_user);
 
     (StatusCode::CREATED, Json(user))
 }
@@ -69,17 +69,17 @@ pub async fn set_internal_user(
 
 pub fn get_or_create_user(
     users_map: &RwLockWriteGuard<HashMap<String, InternalUser>>,
-    user_id: String,
+    user_id: &str,
 ) -> InternalUser {
-    let user_opt = users_map.get(&user_id);
+    let user_opt = users_map.get(user_id);
 
     if let Some(user) = user_opt {
         return user.clone();
     }
 
     return InternalUser::new(
-        user_id.clone(),
-        User::new(user_id.clone()),
+        user_id.to_owned(),
+        User::new(user_id.to_owned()),
         HashSet::new(),
         HashSet::new(),
     );

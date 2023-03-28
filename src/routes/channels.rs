@@ -11,14 +11,14 @@ pub async fn create_internal_channel(
     let mut channel_map = app_state.internal_channels.write().unwrap();
     channel_map.insert(channel.get_id(), channel.clone());
     
-    let user_id = channel.get_owner_id().clone();
+    let user_id = &channel.id;
     let mut user_map = app_state.internal_users.write().unwrap();
     let mut user = get_or_create_user(
         &mut user_map,
-        user_id.clone()
+        user_id
     );
     user.add_owned_channel(channel.get_id().clone());
-    user_map.insert(user_id.clone(), user);
+    user_map.insert(user_id.to_owned(), user);
 
     (StatusCode::CREATED, Json(channel))
 }
