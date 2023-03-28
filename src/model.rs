@@ -10,8 +10,7 @@ type Uuid = String;
 type ChannelId = String;
 type UserId = String;
 type ChannelMessages = Arc<RwLock<HashMap<ChannelId, Vec<Message>>>>;
-type Channels = Arc<RwLock<HashMap<ChannelId, Channel>>>;
-type Users = Arc<RwLock<HashMap<UserId, User>>>;
+type InternalChannels = Arc<RwLock<HashMap<ChannelId, InternalChannel>>>;
 type InternalUsers = Arc<RwLock<HashMap<UserId, InternalUser>>>;
 type Systems = Arc<RwLock<HashMap<Uuid, System>>>;
 type ChannelUsers = Arc<RwLock<HashMap<ChannelId, Vec<UserId>>>>;
@@ -22,8 +21,8 @@ pub type AppState = Arc<AppStateInternal>;
 #[derive(Clone, Default)]
 pub struct AppStateInternal {
     pub messages: ChannelMessages,
-    pub channels: Channels,
-    pub internalUsers: InternalUsers,
+    pub internal_channels: InternalChannels,
+    pub internal_users: InternalUsers,
     pub user_channels: UserChannels,
     pub channel_users: ChannelUsers,
     pub systems: Systems,
@@ -44,19 +43,43 @@ pub struct Channel {
     icon: String,
     description: String,
     visibility: bool,
-    size: i32,
-    owner_id: String
+    size: i32
 }
 
 impl Channel {
-    pub fn new (id: String, owner_id: String) -> Channel {
+    pub fn new (id: String) -> Channel {
         Channel {
             id,
             name: "".to_string(),
             icon: "".to_string(),
             description: "".to_string(),
             visibility: true,
-            size: 0,
+            size: 0
+        }
+    }
+
+    pub fn get_id(&self) -> String {
+        self.id.clone()
+    }
+
+    pub fn inc_size(&mut self) {
+        self.size += 1;
+    }
+}
+
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct InternalChannel {
+    id: String,
+    model: Channel,
+    owner_id: String
+}
+
+impl InternalChannel {
+    pub fn new (id: String, model: Channel, owner_id: String) -> InternalChannel {
+        InternalChannel {
+            id,
+            model,
             owner_id
         }
     }
@@ -65,12 +88,20 @@ impl Channel {
         self.id.clone()
     }
 
+    pub fn get_model(&self) -> Channel {
+        self.model.clone()
+    }
+
+    pub fn set_model(&mut self, model: Channel) {
+        self.model = model;
+    }
+
     pub fn get_owner_id(&self) -> String {
         self.owner_id.clone()
     }
 
     pub fn inc_size(&mut self) {
-        self.size += 1;
+        self.model.inc_size();
     }
 }
 
@@ -113,7 +144,7 @@ impl User {
     }
 }
 
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct InternalUser {
     id: String,
     model: User,

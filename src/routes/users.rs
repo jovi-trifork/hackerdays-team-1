@@ -5,18 +5,17 @@ use axum::{
     Json,
 };
 use std::{
-    collections::HashSet
+    collections::{HashSet, HashMap}, sync::{Arc, RwLock, RwLockWriteGuard}
 };
 
 use crate::model::{AppState, User, InternalUser};
 
 pub async fn get_all_users(State(app_state): State<AppState>) -> impl IntoResponse {
-    let user_map = app_state.internalUsers.read().unwrap();
+    let user_map = app_state.internal_users.read().unwrap();
     let user_list: Vec<User> = user_map
         .iter()
         .map(|(_, internal_user)| internal_user.get_model())
         .collect();
-    println!("Size is: {}", user_list.len());
 
     (StatusCode::OK, Json(user_list))
 }
@@ -30,7 +29,7 @@ pub async fn get_channel_users(
         .get(&channel_id);
     let mut res: Vec<User> = vec![];
     if channel_users_ids.is_some() {
-        let user_map = app_state.internalUsers.read().unwrap();
+        let user_map = app_state.internal_users.read().unwrap();
         for user_id in channel_users_ids.unwrap() {
             let user = user_map.get(user_id).unwrap();
             res.push(user.get_model().clone());
@@ -43,66 +42,46 @@ pub async fn set_user(
     State(app_state): State<AppState>,
     Json(user): Json<User>
 ) -> impl IntoResponse {
-    update_internal_user(&app_state, user.clone());
+    let mut user_map = app_state.internal_users.write().unwrap();
+    let mut internal_user = get_or_create_user(&user_map, user.get_id().clone());
+    internal_user.set_model(user.clone());
+    user_map.insert(user.get_id().clone(), internal_user);
 
     (StatusCode::CREATED, Json(user))
 }
 
+pub async fn get_internal_users(State(app_state): State<AppState>) -> impl IntoResponse {
+    let users_map = app_state.internal_users.read().unwrap();
+    let user_list: Vec<InternalUser> = users_map.values().cloned().collect();
 
-pub fn update_internal_user(
-    app_state: &AppState,
-    model: User
-) -> InternalUser {
-    let mut users_map = app_state.internalUsers.write().unwrap();
-    let user_opt = users_map.get_mut(&model.get_id());
-
-    if user_opt.is_some() {
-        let internal_user = user_opt.unwrap();
-        internal_user.set_model(model.clone());
-        println!("Found user");
-
-        return internal_user.clone();
-    } else {
-        let internal_user = InternalUser::new(model.get_id(), model, HashSet::new(), HashSet::new());
-        users_map.insert(internal_user.get_id(), internal_user.clone());
-        println!("Size is: {}", users_map.len());
-
-        return internal_user;
-    }
+    (StatusCode::OK, Json(user_list))
 }
 
-pub fn add_blocked_user(
-    app_state: &AppState,
-    user_id: String,
-    id_to_block: String
-) -> InternalUser {
-    let mut users_map = app_state.internalUsers.write().unwrap();
-    let user_opt = users_map.get_mut(&user_id);
+pub async fn set_internal_user(
+    Path(user_id): Path<String>,
+    State(app_state): State<AppState>,
+    Json(user): Json<InternalUser>
+) -> impl IntoResponse {
+    let mut users_map = app_state.internal_users.write().unwrap();
+    users_map.insert(user_id, user.clone());
 
-    if user_opt.is_some() {
-        let internal_user = user_opt.unwrap();
-        internal_user.add_blocked_user(id_to_block.clone());
-
-        return internal_user.clone();
-    } else {
-        update_internal_user(app_state, User::new(user_id))
-    }
+    (StatusCode::OK, Json(user))
 }
 
-pub fn add_owned_channel(
-    app_state: &AppState,
+pub fn get_or_create_user(
+    users_map: &RwLockWriteGuard<HashMap<String, InternalUser>>,
     user_id: String,
-    channel_id: String
 ) -> InternalUser {
-    let mut users_map = app_state.internalUsers.write().unwrap();
-    let user_opt = users_map.get_mut(&user_id);
-    match user_opt {
-        Some(internal_user) => {
-            internal_user.add_owned_channel(channel_id.clone());
-            return internal_user.clone();
-        },
-        None => {
-            update_internal_user(app_state, User::new(user_id))
-        }
+    let user_opt = users_map.get(&user_id);
+
+    if let Some(user) = user_opt {
+        return user.clone();
     }
+
+    return InternalUser::new(
+        user_id.clone(),
+        User::new(user_id.clone()),
+        HashSet::new(),
+        HashSet::new(),
+    );
 }
