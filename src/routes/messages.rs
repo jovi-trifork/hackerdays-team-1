@@ -41,7 +41,7 @@ pub async fn create_message(
                     Channel::new(channel_id.clone()), 
                     message.get_owner_id())
                 );
-            message_map.insert(channel_id.clone(), Vec::<Message>::new());
+            message_map.insert(channel_id.clone(), Vec::new());
         }
         Entry::Occupied(_) => {}
     }
