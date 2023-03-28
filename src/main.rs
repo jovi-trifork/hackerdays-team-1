@@ -126,12 +126,7 @@ mod server_sync {
         let url_get_systems = format!("http://{address}/api/v1/systems");
         */
         
-        SyncAppState{
-            messages: ChannelMessages::def,
-            internal_channels: InternalChannels,
-            internal_users: InternalUsers,
-            systems: Systems,
-        }
+        None
     }
     
     async fn send_get_request<T: for<'de> serde::Deserialize<'de>>(url: &str) -> Option<T> {    
