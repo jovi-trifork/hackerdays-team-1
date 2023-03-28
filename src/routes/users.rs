@@ -24,16 +24,16 @@ pub async fn get_channel_users(
     State(app_state): State<AppState>,
 ) -> impl IntoResponse {
     let channel_users_map = app_state.channel_users.read().unwrap();
-    let channel_users_ids = channel_users_map
-        .get(&channel_id);
-    let mut res: Vec<User> = vec![];
-    if channel_users_ids.is_some() {
-        let user_map = app_state.internal_users.read().unwrap();
-        for user_id in channel_users_ids.unwrap() {
-            let user = user_map.get(user_id).unwrap();
-            res.push(user.get_model().clone());
-        }
-    }
+    let channel_users_ids = channel_users_map.get(&channel_id);
+    let res = match channel_users_ids {
+        Some(ids) => {
+            let user_map = app_state.internal_users.read().unwrap();
+            ids.iter()
+                .map(|id|user_map.get(id).unwrap().get_model())
+                .collect()
+        },
+        None => Vec::new()
+    };
     (StatusCode::OK, Json(res))
 }
 
