@@ -103,10 +103,10 @@ impl InternalChannel {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Message {
-    id: Uuid,
+    id: String,
     timestamp: String,
     message: Payload,
-    from_user: Uuid,
+    from_user: String,
 }
 
 impl Message {
@@ -181,7 +181,7 @@ impl InternalUser {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct System {
-    id: Uuid,
+    id: String,
     address: String,
     last_sync: DateTime<Utc>,
     status: String,
@@ -197,7 +197,7 @@ impl System {
         }
     }
 
-    pub fn get_id(&self) -> Uuid {
+    pub fn get_id(&self) -> String {
         self.id.clone()
     }
 }

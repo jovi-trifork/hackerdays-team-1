@@ -24,7 +24,7 @@ curl --location 'http://127.0.0.1:3000/api/v1/users' \
 
 sleep 1
 
-curl --location 'http://127.0.0.1:3000/api/v1/channels' \
+curl --location 'http://127.0.0.1:3000/internal/channels' \
 --header 'Content-Type: application/json' \
 --data '{
     "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
@@ -41,7 +41,7 @@ curl --location 'http://127.0.0.1:3000/api/v1/channels' \
 
 sleep 1
 
-curl --location 'http://127.0.0.1:3000/api/v1/channels' \
+curl --location 'http://127.0.0.1:3000/internal/channels' \
 --header 'Content-Type: application/json' \
 --data '{
     "id": "99996eca-6276-4993-bfeb-53cbbbba6f09",
@@ -58,3 +58,16 @@ curl --location 'http://127.0.0.1:3000/api/v1/channels' \
 
 
 sleep 1
+
+curl --request POST \
+  --url http://127.0.0.1:8000/api/v1/channels/channel_id/messages \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "timestamp": "2019-08-24T14:15:22Z",
+  "message": {
+    "html": "<marquee>Hackerdays 2023</marquee>",
+    "text": "Hackerdays 2023"
+  },
+  "from_user": "8b1114d6-dbc3-4464-9f6a-d8d3099c5ba5"
+}'
