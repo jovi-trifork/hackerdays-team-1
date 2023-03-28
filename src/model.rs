@@ -9,25 +9,26 @@ use std::{
 type Uuid = String;
 type ChannelId = String;
 type UserId = String;
-type ChannelMessagesSync = Arc<RwLock<ChannelMessages>>;
+
+type InternalChannelMessagesSync = Arc<RwLock<InternalChannelMessages>>;
 type InternalChannelsSync = Arc<RwLock<InternalChannels>>;
 type InternalUsersSync = Arc<RwLock<InternalUsers>>;
-type SystemsSync = Arc<RwLock<Systems>>;
+type SystemsSync = Arc<RwLock<InternalSystems>>;
 type ChannelUsersSync = Arc<RwLock<ChannelUsers>>;
 type UserChannelsSync = Arc<RwLock<UserChannels>>;
 
-type ChannelMessages = HashMap<ChannelId, Vec<Message>>;
-type InternalChannels = HashMap<ChannelId, InternalChannel>;
-type InternalUsers = HashMap<UserId, InternalUser>;
-type Systems = HashMap<String, System>;
-type ChannelUsers = HashMap<ChannelId, Vec<UserId>>;
-type UserChannels = HashMap<String, Vec<Channel>>;
+pub type InternalChannelMessages = HashMap<ChannelId, Vec<Message>>;
+pub type InternalChannels = HashMap<ChannelId, InternalChannel>;
+pub type InternalUsers = HashMap<UserId, InternalUser>;
+pub type InternalSystems = HashMap<String, System>;
+pub type ChannelUsers = HashMap<ChannelId, Vec<UserId>>;
+pub type UserChannels = HashMap<String, Vec<Channel>>;
 
 pub type AppState = Arc<AppStateInternal>;
 
 #[derive(Clone, Default)]
 pub struct AppStateInternal {
-    pub messages: ChannelMessagesSync,
+    pub messages: InternalChannelMessagesSync,
     pub internal_channels: InternalChannelsSync,
     pub internal_users: InternalUsersSync,
     pub user_channels: UserChannelsSync,
@@ -37,10 +38,9 @@ pub struct AppStateInternal {
 
 #[derive(Default, Debug)]
 pub struct ServerSyncAppState {
-    pub messages: ChannelMessages,
+    pub messages: InternalChannelMessages,
     pub internal_channels: InternalChannels,
     pub internal_users: InternalUsers,
-    pub systems: Systems,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -85,14 +85,14 @@ impl Channel {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct InternalChannel {
-    id: String,
+    pub id: String,
     model: Channel,
     owner_id: String
 }
 
 impl InternalChannel {
     pub fn new (id: String, model: Channel, owner_id: String) -> InternalChannel {
-        InternalChannel {
+        Self {
             id,
             model,
             owner_id
@@ -111,12 +111,22 @@ impl InternalChannel {
         self.model = model;
     }
 
-    pub fn get_owner_id(&self) -> String {
-        self.owner_id.clone()
+    pub fn get_owner_id(&self) -> &str {
+        &self.owner_id
     }
 
     pub fn inc_size(&mut self) {
         self.model.inc_size();
+    }
+}
+
+impl From<Channel> for InternalChannel {
+    fn from(channel: Channel) -> Self {
+        Self { 
+            id: channel.id.to_owned(), 
+            model: channel, 
+            owner_id: String::new()
+        }
     }
 }
 
@@ -158,8 +168,8 @@ impl User {
         }
     }
 
-    pub fn get_id(&self) -> String {
-        self.id.clone()
+    pub fn get_id(&self) -> &str {
+        &self.id
     }
 }
 
@@ -199,6 +209,17 @@ impl InternalUser {
 
     pub fn add_blocked_user(&mut self, user_id: String) {
         self.blocked_users.insert(user_id);
+    }
+}
+
+impl From<User> for InternalUser {
+    fn from(user: User) -> Self {
+        Self { 
+            id: user.id.to_owned(),
+            model: user,
+            owned_channels: HashSet::new(),
+            blocked_users: HashSet::new(),
+        }
     }
 }
 
