@@ -17,8 +17,10 @@ type Systems = Arc<RwLock<HashMap<Uuid, System>>>;
 type ChannelUsers = Arc<RwLock<HashMap<ChannelId, Vec<UserId>>>>;
 type UserChannels = Arc<RwLock<HashMap<String, Vec<Channel>>>>;
 
+pub type AppState = Arc<AppStateInternal>;
+
 #[derive(Clone, Default)]
-pub struct AppState {
+pub struct AppStateInternal {
     pub messages: ChannelMessages,
     pub channels: Channels,
     pub internalUsers: InternalUsers,
@@ -33,7 +35,9 @@ pub struct Payload {
     text: String,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+
+pub type GetChannelsResponse = Vec<Channel>;
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Channel {
     id: String,
     name: String,
@@ -148,7 +152,7 @@ impl InternalUser {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct System {
     id: Uuid,
     address: String,
@@ -168,5 +172,9 @@ impl System {
 
     pub fn get_id(&self) -> Uuid {
         self.id.clone()
+    }
+
+    pub fn get_address(&self) -> &str {
+        &self.address
     }
 }
