@@ -11,7 +11,7 @@ use std::{
 use crate::model::{AppState, User, InternalUser};
 
 pub async fn get_all_users(State(app_state): State<AppState>) -> impl IntoResponse {
-    let user_map = app_state.internalUsers.read().unwrap();
+    let user_map = app_state.internal_users.read().unwrap();
     let user_list: Vec<User> = user_map
         .iter()
         .map(|(_, internal_user)| internal_user.get_model())
@@ -30,7 +30,7 @@ pub async fn get_channel_users(
         .get(&channel_id);
     let mut res: Vec<User> = vec![];
     if channel_users_ids.is_some() {
-        let user_map = app_state.internalUsers.read().unwrap();
+        let user_map = app_state.internal_users.read().unwrap();
         for user_id in channel_users_ids.unwrap() {
             let user = user_map.get(user_id).unwrap();
             res.push(user.get_model().clone());
@@ -53,7 +53,7 @@ pub fn update_internal_user(
     app_state: &AppState,
     model: User
 ) -> InternalUser {
-    let mut users_map = app_state.internalUsers.write().unwrap();
+    let mut users_map = app_state.internal_users.write().unwrap();
     let user_opt = users_map.get_mut(&model.get_id());
 
     if user_opt.is_some() {
@@ -76,7 +76,7 @@ pub fn add_blocked_user(
     user_id: String,
     id_to_block: String
 ) -> InternalUser {
-    let mut users_map = app_state.internalUsers.write().unwrap();
+    let mut users_map = app_state.internal_users.write().unwrap();
     let user_opt = users_map.get_mut(&user_id);
 
     if user_opt.is_some() {
@@ -94,7 +94,7 @@ pub fn add_owned_channel(
     user_id: String,
     channel_id: String
 ) -> InternalUser {
-    let mut users_map = app_state.internalUsers.write().unwrap();
+    let mut users_map = app_state.internal_users.write().unwrap();
     let user_opt = users_map.get_mut(&user_id);
     match user_opt {
         Some(internal_user) => {

@@ -21,7 +21,7 @@ type UserChannels = Arc<RwLock<HashMap<String, Vec<Channel>>>>;
 pub struct AppState {
     pub messages: ChannelMessages,
     pub channels: Channels,
-    pub internalUsers: InternalUsers,
+    pub internal_users: InternalUsers,
     pub user_channels: UserChannels,
     pub channel_users: ChannelUsers,
     pub systems: Systems,
