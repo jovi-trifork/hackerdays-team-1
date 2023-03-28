@@ -12,9 +12,8 @@ use crate::model::{AppState, User, InternalUser};
 
 pub async fn get_all_users(State(app_state): State<AppState>) -> impl IntoResponse {
     let user_map = app_state.internal_users.read().unwrap();
-    let user_list: Vec<User> = user_map
-        .iter()
-        .map(|(_, internal_user)| internal_user.get_model())
+    let user_list: Vec<User> = user_map.values()
+        .map(InternalUser::get_model)
         .collect();
 
     (StatusCode::OK, Json(user_list))
