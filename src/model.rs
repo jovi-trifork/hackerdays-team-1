@@ -9,26 +9,41 @@ use std::{
 type Uuid = String;
 type ChannelId = String;
 type UserId = String;
-type ChannelMessages = Arc<RwLock<HashMap<ChannelId, Vec<Message>>>>;
-type InternalChannels = Arc<RwLock<HashMap<ChannelId, InternalChannel>>>;
-type InternalUsers = Arc<RwLock<HashMap<UserId, InternalUser>>>;
-type Systems = Arc<RwLock<HashMap<Uuid, System>>>;
-type ChannelUsers = Arc<RwLock<HashMap<ChannelId, Vec<UserId>>>>;
-type UserChannels = Arc<RwLock<HashMap<String, Vec<Channel>>>>;
+type ChannelMessagesSync = Arc<RwLock<ChannelMessages>>;
+type InternalChannelsSync = Arc<RwLock<InternalChannels>>;
+type InternalUsersSync = Arc<RwLock<InternalUsers>>;
+type SystemsSync = Arc<RwLock<Systems>>;
+type ChannelUsersSync = Arc<RwLock<ChannelUsers>>;
+type UserChannelsSync = Arc<RwLock<UserChannels>>;
+
+type ChannelMessages = HashMap<ChannelId, Vec<Message>>;
+type InternalChannels = HashMap<ChannelId, InternalChannel>;
+type InternalUsers = HashMap<UserId, InternalUser>;
+type Systems = HashMap<String, System>;
+type ChannelUsers = HashMap<ChannelId, Vec<UserId>>;
+type UserChannels = HashMap<String, Vec<Channel>>;
 
 pub type AppState = Arc<AppStateInternal>;
 
 #[derive(Clone, Default)]
 pub struct AppStateInternal {
+    pub messages: ChannelMessagesSync,
+    pub internal_channels: InternalChannelsSync,
+    pub internal_users: InternalUsersSync,
+    pub user_channels: UserChannelsSync,
+    pub channel_users: ChannelUsersSync,
+    pub systems: SystemsSync,
+}
+
+#[derive(Default, Debug)]
+pub struct ServerSyncAppState {
     pub messages: ChannelMessages,
     pub internal_channels: InternalChannels,
     pub internal_users: InternalUsers,
-    pub user_channels: UserChannels,
-    pub channel_users: ChannelUsers,
     pub systems: Systems,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Payload {
     html: String,
     text: String,
@@ -58,8 +73,8 @@ impl Channel {
         }
     }
 
-    pub fn get_id(&self) -> String {
-        self.id.clone()
+    pub fn get_id(&self) -> &str {
+        &self.id
     }
 
     pub fn inc_size(&mut self) {
@@ -68,7 +83,7 @@ impl Channel {
 }
 
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct InternalChannel {
     id: String,
     model: Channel,
@@ -105,7 +120,9 @@ impl InternalChannel {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+pub type GetMessagesResponse = Vec<Message>;
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Message {
     id: Uuid,
     timestamp: String,
@@ -119,7 +136,9 @@ impl Message {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+pub type GetUsersResponse = Vec<User>;
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct User {
     id: String,
     name: String,
@@ -144,7 +163,7 @@ impl User {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct InternalUser {
     id: String,
     model: User,
@@ -199,10 +218,6 @@ impl System {
             last_sync: chrono::Utc::now(),
             status: "".to_string(),
         }
-    }
-
-    pub fn get_id(&self) -> Uuid {
-        self.id.clone()
     }
 
     pub fn get_address(&self) -> &str {

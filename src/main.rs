@@ -67,56 +67,77 @@ pub async fn get_index() -> &'static str {
 
 mod server_sync {
     use crate::model;
-    use model::AppState;
+    use model::*;
 
-    pub fn start_server_sync(app_state: AppState ) {
+    pub fn start_server_sync(state: AppState ) {
         use std::thread;
         use std::time::Duration;
     
         // Start a thread to every poll all systems.
         tokio::task::spawn(async move {
             loop {
-                server_sync(&app_state).await;
+                server_sync(&state).await;
                 thread::sleep(Duration::from_secs(10));
             }
         });
     }
     
-    async fn server_sync(app_state: &AppState)  {
-        let systems = app_state.systems.read().unwrap().clone();
+    async fn server_sync(state: &AppState)  {
+        let systems = state.systems.read().unwrap().clone();
         let addresses = systems.values().map(|system| system.get_address()).collect::<Vec<&str>>();
         println!("Polling systems {addresses:?}");
     
             for system in systems.values() {
-                // Get address
-                let channels = get_channels(system).await;
-                
-                // Get channels
-                println!("Received channels: {channels:?}")
-                
-                /*
-                let url_get_messages_for_channel = format!("http://{address}/api/v1/channels/{channel_id}/messages");
-                let url_get_users = format!("http://{address}/api/v1/users");
-                let url_get_systems = format!("http://{address}/api/v1/systems");
-                */
-        
-                
-        
-                // Get messages
-        
-                // Merge
+                let state = get_state(system).await;
+                println!("{state:?}")
+
+                // TODO: Merge
+
             }
+
+
+    }
+
+    async fn get_state(system: &System) -> Option<ServerSyncAppState> {
+        let address = system.get_address();
+        let url_base = format!("{address}/api/v1");
+
+        // Get channels
+        let url_get_channels = format!("{url_base}/channels", );
+        let channels: GetChannelsResponse = send_get_request(&url_get_channels).await?;
+        println!("Received channels: {channels:#?}");
+
+        // Get messages in each channel
+        for channel in channels {
+            let channel_id = channel.get_id();
+            let url_get_messages = format!("{url_base}/channels/{channel_id}/messages", );
+            let messages: GetMessagesResponse = send_get_request(&url_get_messages).await?;
+
+            println!("Messages in channel {channel_id}: {messages:#?}");
+        }
+        
+        
+        // Get users
+        let url_get_users = format!("{url_base}/users", );
+        let users: GetUsersResponse = send_get_request(&url_get_users).await?;
+        println!("Received users: {users:#?}");
+
+        /*
+        let url_get_systems = format!("http://{address}/api/v1/systems");
+        */
+        
+        SyncAppState{
+            messages: ChannelMessages::def,
+            internal_channels: InternalChannels,
+            internal_users: InternalUsers,
+            systems: Systems,
+        }
     }
     
-    async fn get_channels(system: &model::System) -> Option<model::GetChannelsResponse> {
-        let url_get_channels = format!("{}/api/v1/channels", system.get_address());
-    
-    println!("Sending request to {url_get_channels}");
-        let resp = reqwest::get(url_get_channels)
+    async fn send_get_request<T: for<'de> serde::Deserialize<'de>>(url: &str) -> Option<T> {    
+        reqwest::get(url)
                     .await.ok()?
-                    .json::<model::GetChannelsResponse>()
-                    .await.ok()?;
-        println!("{:#?}", resp);
-        return Some(resp)
+                    .json::<T>()
+                    .await.ok()
     }
 }

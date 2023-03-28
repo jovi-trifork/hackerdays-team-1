@@ -23,5 +23,5 @@ pub async fn create_system(
 
     let system = System::new(address);
 
-    systems_map.insert(system.get_id(), system);
+    systems_map.insert(system.get_address().to_string(), system);
 }
