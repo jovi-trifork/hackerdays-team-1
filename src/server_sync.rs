@@ -1,6 +1,5 @@
 use crate::model;
 use model::*;
-use std::{collections::HashMap, hash::Hash};
 
 pub fn start_server_sync(state: AppState ) {
     use std::thread;
